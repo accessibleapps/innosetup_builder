@@ -120,7 +120,7 @@ def all_files(path):
 class InnosetupCompiler:
     """Represents the local innosetup installation"""
     base_path =  field(default=Factory(get_path_from_registry))
-    output_path =   field(default=Factory(pathlib.Path))
+
 
     @property
     def languages_path(self):
@@ -138,9 +138,9 @@ class InnosetupCompiler:
             'messages_file': 'compiler:' +  str(language.relative_to(self.base_path))
             }
 
-    def build(self, installer):
+    def build(self, installer, output_filename):
         """This method compiles the given installer"""
         with tempfile.TemporaryDirectory() as tmpdir:
             installer_path  = pathlib.Path(tmpdir) / "installer.iss"
             installer_path.write_text(installer.render(self))
-            subprocess.check_call([str(self.compiler_path), str(installer_path), '/Q', '/O ' + str(self.output_path)])
+            subprocess.check_call([str(self.compiler_path), '/Qp', '/F' + str(output_filename), str(installer_path)])
