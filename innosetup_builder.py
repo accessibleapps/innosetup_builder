@@ -21,7 +21,7 @@ VersionInfoProductName={{ installer.app_name }}
 {%- if installer.license_file -%}
 LicenseFile={{ installer.license_file }}
 {%- endif -%}
-
+OutputBaseFilename={{ installer.output_base_filename }}
 {% if installer.files %}
 [files]
 {% for file in installer.files %}
@@ -81,6 +81,7 @@ class Installer:
     main_executable = field(default="")
     files   = field(default=Factory(list))
     license_file = field(default=None)
+    output_base_filename = field(default="")
     extra_iss = field(default="")
 
     def render(self, innosetup_installation):
@@ -143,4 +144,4 @@ class InnosetupCompiler:
         with tempfile.TemporaryDirectory() as tmpdir:
             installer_path  = pathlib.Path(tmpdir) / "installer.iss"
             installer_path.write_text(installer.render(self))
-            subprocess.check_call([str(self.compiler_path), '/Qp', '/F' + str(output_filename), str(installer_path)])
+            subprocess.check_call([str(self.compiler_path), '/Qp', str(installer_path)])
