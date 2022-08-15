@@ -1,3 +1,8 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "innosetup_builder"
 description = "Programmatically create Innosetup installers and compile them with the Innosetup compiler"
 version = "0.1.0"
