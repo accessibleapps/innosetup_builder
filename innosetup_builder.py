@@ -139,7 +139,7 @@ class InnosetupCompiler:
             'messages_file': 'compiler:' +  str(language.relative_to(self.base_path))
             }
 
-    def build(self, installer, output_filename):
+    def build(self, installer):
         """This method compiles the given installer"""
         with tempfile.TemporaryDirectory() as tmpdir:
             installer_path  = pathlib.Path(tmpdir) / "installer.iss"
