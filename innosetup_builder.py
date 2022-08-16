@@ -21,7 +21,9 @@ VersionInfoProductName={{ installer.app_name }}
 {%- if installer.license_file -%}
 LicenseFile={{ installer.license_file }}
 {%- endif -%}
+{%- if installer.output_base_filename -%}
 OutputBaseFilename={{ installer.output_base_filename }}
+{%- endif -%}
 {% if installer.files %}
 [files]
 {% for file in installer.files %}
@@ -70,18 +72,18 @@ class FileEntry:
 @define
 class Installer:
     """This class represents an installer."""
-    author = field(default="")
-    author_email = field(default="")
-    app_name = field(default="")
-    app_version = field(default="")
-    app_short_description = field(default="")
+    author: str = field(default="")
+    author_email: str = field(default="")
+    app_name: str = field(default="")
+    app_version: str = field(default="")
+    app_short_description: str = field(default="")
     desktop_icon = field(default=False)
-    run_at_startup = field(default=False)
-    multilingual = field(default=True)
-    main_executable = field(default="")
+    run_at_startup: bool  = field(default=False)
+    multilingual: bool = field(default=True)
+    main_executable: str = field(default="")
     files   = field(default=Factory(list))
     license_file = field(default=None)
-    output_base_filename = field(default="")
+    output_base_filename: str = field(default="")
     extra_iss = field(default="")
 
     def render(self, innosetup_installation):
@@ -139,9 +141,9 @@ class InnosetupCompiler:
             'messages_file': 'compiler:' +  str(language.relative_to(self.base_path))
             }
 
-    def build(self, installer):
+    def build(self, installer, output_path=pathlib.Path('.')):
         """This method compiles the given installer"""
         with tempfile.TemporaryDirectory() as tmpdir:
             installer_path  = pathlib.Path(tmpdir) / "installer.iss"
             installer_path.write_text(installer.render(self))
-            subprocess.check_call([str(self.compiler_path), '/Qp', str(installer_path)])
+            subprocess.check_call([str(self.compiler_path), '/Qp', '/O"' + str(output_path.absolute())[3:] + '"', str(installer_path)])
