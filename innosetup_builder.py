@@ -1,9 +1,13 @@
 """This is a module which builds Innosetup .iss files from a Jinja2 template."""
 
 import pathlib
+import platform
 import subprocess
 import tempfile
-import winreg
+try:
+    import winreg
+except ImportError:
+    pass
 
 
 import jinja2
@@ -66,8 +70,8 @@ Tasks: "startup"; ValueType: "string"; ValueData: "{app}\\{{ installer.main_exec
 @define
 class FileEntry:
     """This class represents a file entry in the innosetup template."""
-    source = field(default=None)
-    destination = field (default=None)
+    source: str = field(default=None)
+    destination: str = field (default=None)
 
 @define
 class Installer:
@@ -96,6 +100,8 @@ class Installer:
 
 def get_path_from_registry():
     """This function gets the path to the innosetup installation from the registry"""
+    if platform.system() != "Windows":
+        return None
     try:
         try:
             key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion   \\Uninstall\\Inno Setup 6_is1")
