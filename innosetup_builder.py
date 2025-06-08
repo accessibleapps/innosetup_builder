@@ -70,6 +70,20 @@ Tasks: "startup"; ValueType: "string"; ValueData: "{app}\\{{ installer.main_exec
 {% endif %}
 {% endif %}
 
+{% if installer.run_entries %}
+[Run]
+{% for entry in installer.run_entries %}
+Filename: "{{ entry.filename }}"{% if entry.description %}; Description: "{{ entry.description }}"{% endif %}{% if entry.parameters %}; Parameters: "{{ entry.parameters }}"{% endif %}{% if entry.working_dir %}; WorkingDir: "{{ entry.working_dir }}"{% endif %}{% if entry.status_msg %}; StatusMsg: "{{ entry.status_msg }}"{% endif %}{% if entry.verb %}; Verb: "{{ entry.verb }}"{% endif %}{% if entry.flags %}; Flags: {{ entry.flags }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if installer.uninstall_run_entries %}
+[UninstallRun]
+{% for entry in installer.uninstall_run_entries %}
+Filename: "{{ entry.filename }}"{% if entry.parameters %}; Parameters: "{{ entry.parameters }}"{% endif %}{% if entry.working_dir %}; WorkingDir: "{{ entry.working_dir }}"{% endif %}{% if entry.runonce_id %}; RunOnceId: "{{ entry.runonce_id }}"{% endif %}{% if entry.verb %}; Verb: "{{ entry.verb }}"{% endif %}{% if entry.flags %}; Flags: {{ entry.flags }}{% endif %}
+{% endfor %}
+{% endif %}
+
 {{ innosetup.extra_iss }}
 """
 
@@ -94,6 +108,29 @@ class RegistryEntry:
 
 
 @define
+class RunEntry:
+    """This class represents a run entry in the innosetup template."""
+    filename: str = field(default="")
+    description: str = field(default="")
+    parameters: str = field(default="")
+    working_dir: str = field(default="")
+    status_msg: str = field(default="")
+    verb: str = field(default="")
+    flags: str = field(default="")
+
+
+@define
+class UninstallRunEntry:
+    """This class represents an uninstall run entry in the innosetup template."""
+    filename: str = field(default="")
+    parameters: str = field(default="")
+    working_dir: str = field(default="")
+    runonce_id: str = field(default="")
+    verb: str = field(default="")
+    flags: str = field(default="")
+
+
+@define
 class Installer:
     """This class represents an installer."""
     author: str = field(default="")
@@ -107,6 +144,8 @@ class Installer:
     main_executable: str = field(default="")
     files = field(default=Factory(list))
     registry_entries = field(default=Factory(list))
+    run_entries = field(default=Factory(list))
+    uninstall_run_entries = field(default=Factory(list))
     license_file = field(default=None)
     output_base_filename: str = field(default="")
     extra_iss = field(default="")
