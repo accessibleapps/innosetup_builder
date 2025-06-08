@@ -29,10 +29,10 @@ LicenseFile={{ installer.license_file }}
 OutputBaseFilename={{ installer.output_base_filename }}
 {% endif %}
 {% if installer.files %}
-[files]
+[Files]
 {% for file in installer.files %}
-Source:     "{{ file.source }}";                 DestDir: "{app}\\{{ file.destination }}";
-{% endfor %}    
+Source: "{{ file.source }}"; DestDir: "{app}{% if file.destination %}\\{{ file.destination }}{% endif %}"{% if file.dest_name %}; DestName: "{{ file.dest_name }}"{% endif %}{% if file.excludes %}; Excludes: "{{ file.excludes }}"{% endif %}{% if file.external_size %}; ExternalSize: {{ file.external_size }}{% endif %}{% if file.attribs %}; Attribs: {{ file.attribs }}{% endif %}{% if file.permissions %}; Permissions: {{ file.permissions }}{% endif %}{% if file.font_install %}; FontInstall: "{{ file.font_install }}"{% endif %}{% if file.strong_assembly_name %}; StrongAssemblyName: "{{ file.strong_assembly_name }}"{% endif %}{% if file.flags %}; Flags: {{ file.flags }}{% endif %}
+{% endfor %}
 {% endif %}
 
 {% if installer.registry_entries %}
@@ -93,6 +93,14 @@ class FileEntry:
     """This class represents a file entry in the innosetup template."""
     source: str = field(default=None)
     destination: str = field(default=None)
+    dest_name: str = field(default="")
+    excludes: str = field(default="")
+    external_size: str = field(default="")
+    attribs: str = field(default="")
+    permissions: str = field(default="")
+    font_install: str = field(default="")
+    strong_assembly_name: str = field(default="")
+    flags: str = field(default="")
 
 
 @define
