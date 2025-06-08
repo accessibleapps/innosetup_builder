@@ -35,6 +35,13 @@ Source:     "{{ file.source }}";                 DestDir: "{app}\\{{ file.destin
 {% endfor %}    
 {% endif %}
 
+{% if installer.registry_entries %}
+[Registry]
+{% for entry in installer.registry_entries %}
+Root: {{ entry.root }}; Subkey: "{{ entry.subkey }}"{% if entry.value_type != "none" %}; ValueType: {{ entry.value_type }}{% endif %}{% if entry.value_name %}; ValueName: "{{ entry.value_name }}"{% endif %}{% if entry.value_data %}; ValueData: "{{ entry.value_data }}"{% endif %}{% if entry.permissions %}; Permissions: {{ entry.permissions }}{% endif %}{% if entry.flags %}; Flags: {{ entry.flags }}{% endif %}
+{% endfor %}
+{% endif %}
+
 {% if installer.multilingual %}
 [Languages]
 MessagesFile: "compiler:Default.isl"; Name: "Default"
@@ -75,6 +82,18 @@ class FileEntry:
 
 
 @define
+class RegistryEntry:
+    """This class represents a registry entry in the innosetup template."""
+    root: str = field(default="HKLM")  # HKLM, HKCU, HKCR, HKU, HKCC, HKA
+    subkey: str = field(default="")
+    value_type: str = field(default="none")  # none, string, expandsz, multisz, dword, qword, binary
+    value_name: str = field(default="")
+    value_data: str = field(default="")
+    permissions: str = field(default="")
+    flags: str = field(default="")
+
+
+@define
 class Installer:
     """This class represents an installer."""
     author: str = field(default="")
@@ -87,6 +106,7 @@ class Installer:
     multilingual: bool = field(default=True)
     main_executable: str = field(default="")
     files = field(default=Factory(list))
+    registry_entries = field(default=Factory(list))
     license_file = field(default=None)
     output_base_filename: str = field(default="")
     extra_iss = field(default="")
