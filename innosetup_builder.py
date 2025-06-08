@@ -28,24 +28,39 @@ LicenseFile={{ installer.license_file }}
 {% if installer.output_base_filename %}
 OutputBaseFilename={{ installer.output_base_filename }}
 {% endif %}
+
+{% if installer.component_types %}
+[Types]
+{% for type in installer.component_types %}
+Name: "{{ type.name }}"; Description: "{{ type.description }}"{% if type.flags %}; Flags: {{ type.flags }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if installer.components %}
+[Components]
+{% for component in installer.components %}
+Name: "{{ component.name }}"; Description: "{{ component.description }}"{% if component.types %}; Types: {{ component.types }}{% endif %}{% if component.extra_disk_space_required %}; ExtraDiskSpaceRequired: {{ component.extra_disk_space_required }}{% endif %}{% if component.flags %}; Flags: {{ component.flags }}{% endif %}
+{% endfor %}
+{% endif %}
+
 {% if installer.files %}
 [Files]
 {% for file in installer.files %}
-Source: "{{ file.source }}"; DestDir: "{app}{% if file.destination %}\\{{ file.destination }}{% endif %}"{% if file.dest_name %}; DestName: "{{ file.dest_name }}"{% endif %}{% if file.excludes %}; Excludes: "{{ file.excludes }}"{% endif %}{% if file.external_size %}; ExternalSize: {{ file.external_size }}{% endif %}{% if file.attribs %}; Attribs: {{ file.attribs }}{% endif %}{% if file.permissions %}; Permissions: {{ file.permissions }}{% endif %}{% if file.font_install %}; FontInstall: "{{ file.font_install }}"{% endif %}{% if file.strong_assembly_name %}; StrongAssemblyName: "{{ file.strong_assembly_name }}"{% endif %}{% if file.flags %}; Flags: {{ file.flags }}{% endif %}
+Source: "{{ file.source }}"; DestDir: "{app}{% if file.destination %}\\{{ file.destination }}{% endif %}"{% if file.dest_name %}; DestName: "{{ file.dest_name }}"{% endif %}{% if file.excludes %}; Excludes: "{{ file.excludes }}"{% endif %}{% if file.external_size %}; ExternalSize: {{ file.external_size }}{% endif %}{% if file.attribs %}; Attribs: {{ file.attribs }}{% endif %}{% if file.permissions %}; Permissions: {{ file.permissions }}{% endif %}{% if file.font_install %}; FontInstall: "{{ file.font_install }}"{% endif %}{% if file.strong_assembly_name %}; StrongAssemblyName: "{{ file.strong_assembly_name }}"{% endif %}{% if file.flags %}; Flags: {{ file.flags }}{% endif %}{% if file.components %}; Components: {{ file.components }}{% endif %}
 {% endfor %}
 {% endif %}
 
 {% if installer.dirs %}
 [Dirs]
 {% for dir in installer.dirs %}
-Name: "{{ dir.name }}"{% if dir.permissions %}; Permissions: {{ dir.permissions }}{% endif %}{% if dir.attribs %}; Attribs: {{ dir.attribs }}{% endif %}{% if dir.flags %}; Flags: {{ dir.flags }}{% endif %}
+Name: "{{ dir.name }}"{% if dir.permissions %}; Permissions: {{ dir.permissions }}{% endif %}{% if dir.attribs %}; Attribs: {{ dir.attribs }}{% endif %}{% if dir.flags %}; Flags: {{ dir.flags }}{% endif %}{% if dir.components %}; Components: {{ dir.components }}{% endif %}
 {% endfor %}
 {% endif %}
 
 {% if installer.registry_entries %}
 [Registry]
 {% for entry in installer.registry_entries %}
-Root: {{ entry.root }}; Subkey: "{{ entry.subkey }}"{% if entry.value_type != "none" %}; ValueType: {{ entry.value_type }}{% endif %}{% if entry.value_name %}; ValueName: "{{ entry.value_name }}"{% endif %}{% if entry.value_data %}; ValueData: "{{ entry.value_data }}"{% endif %}{% if entry.permissions %}; Permissions: {{ entry.permissions }}{% endif %}{% if entry.flags %}; Flags: {{ entry.flags }}{% endif %}
+Root: {{ entry.root }}; Subkey: "{{ entry.subkey }}"{% if entry.value_type != "none" %}; ValueType: {{ entry.value_type }}{% endif %}{% if entry.value_name %}; ValueName: "{{ entry.value_name }}"{% endif %}{% if entry.value_data %}; ValueData: "{{ entry.value_data }}"{% endif %}{% if entry.permissions %}; Permissions: {{ entry.permissions }}{% endif %}{% if entry.flags %}; Flags: {{ entry.flags }}{% endif %}{% if entry.components %}; Components: {{ entry.components }}{% endif %}
 {% endfor %}
 {% endif %}
 
@@ -80,14 +95,14 @@ Tasks: "startup"; ValueType: "string"; ValueData: "{app}\\{{ installer.main_exec
 {% if installer.run_entries %}
 [Run]
 {% for entry in installer.run_entries %}
-Filename: "{{ entry.filename }}"{% if entry.description %}; Description: "{{ entry.description }}"{% endif %}{% if entry.parameters %}; Parameters: "{{ entry.parameters }}"{% endif %}{% if entry.working_dir %}; WorkingDir: "{{ entry.working_dir }}"{% endif %}{% if entry.status_msg %}; StatusMsg: "{{ entry.status_msg }}"{% endif %}{% if entry.verb %}; Verb: "{{ entry.verb }}"{% endif %}{% if entry.flags %}; Flags: {{ entry.flags }}{% endif %}
+Filename: "{{ entry.filename }}"{% if entry.description %}; Description: "{{ entry.description }}"{% endif %}{% if entry.parameters %}; Parameters: "{{ entry.parameters }}"{% endif %}{% if entry.working_dir %}; WorkingDir: "{{ entry.working_dir }}"{% endif %}{% if entry.status_msg %}; StatusMsg: "{{ entry.status_msg }}"{% endif %}{% if entry.verb %}; Verb: "{{ entry.verb }}"{% endif %}{% if entry.flags %}; Flags: {{ entry.flags }}{% endif %}{% if entry.components %}; Components: {{ entry.components }}{% endif %}
 {% endfor %}
 {% endif %}
 
 {% if installer.uninstall_run_entries %}
 [UninstallRun]
 {% for entry in installer.uninstall_run_entries %}
-Filename: "{{ entry.filename }}"{% if entry.parameters %}; Parameters: "{{ entry.parameters }}"{% endif %}{% if entry.working_dir %}; WorkingDir: "{{ entry.working_dir }}"{% endif %}{% if entry.runonce_id %}; RunOnceId: "{{ entry.runonce_id }}"{% endif %}{% if entry.verb %}; Verb: "{{ entry.verb }}"{% endif %}{% if entry.flags %}; Flags: {{ entry.flags }}{% endif %}
+Filename: "{{ entry.filename }}"{% if entry.parameters %}; Parameters: "{{ entry.parameters }}"{% endif %}{% if entry.working_dir %}; WorkingDir: "{{ entry.working_dir }}"{% endif %}{% if entry.runonce_id %}; RunOnceId: "{{ entry.runonce_id }}"{% endif %}{% if entry.verb %}; Verb: "{{ entry.verb }}"{% endif %}{% if entry.flags %}; Flags: {{ entry.flags }}{% endif %}{% if entry.components %}; Components: {{ entry.components }}{% endif %}
 {% endfor %}
 {% endif %}
 
@@ -108,6 +123,7 @@ class FileEntry:
     font_install: str = field(default="")
     strong_assembly_name: str = field(default="")
     flags: str = field(default="")
+    components: str = field(default="")
 
 
 @define
@@ -120,6 +136,7 @@ class RegistryEntry:
     value_data: str = field(default="")
     permissions: str = field(default="")
     flags: str = field(default="")
+    components: str = field(default="")
 
 
 @define
@@ -132,6 +149,7 @@ class RunEntry:
     status_msg: str = field(default="")
     verb: str = field(default="")
     flags: str = field(default="")
+    components: str = field(default="")
 
 
 @define
@@ -143,6 +161,7 @@ class UninstallRunEntry:
     runonce_id: str = field(default="")
     verb: str = field(default="")
     flags: str = field(default="")
+    components: str = field(default="")
 
 
 @define
@@ -151,6 +170,25 @@ class DirEntry:
     name: str = field(default="")
     permissions: str = field(default="")
     attribs: str = field(default="")
+    flags: str = field(default="")
+    components: str = field(default="")
+
+
+@define
+class ComponentType:
+    """This class represents a setup type in the innosetup template."""
+    name: str = field(default="")
+    description: str = field(default="")
+    flags: str = field(default="")
+
+
+@define
+class Component:
+    """This class represents a component in the innosetup template."""
+    name: str = field(default="")
+    description: str = field(default="")
+    types: str = field(default="")
+    extra_disk_space_required: str = field(default="")
     flags: str = field(default="")
 
 
@@ -171,6 +209,8 @@ class Installer:
     run_entries = field(default=Factory(list))
     uninstall_run_entries = field(default=Factory(list))
     dirs = field(default=Factory(list))
+    component_types = field(default=Factory(list))
+    components = field(default=Factory(list))
     license_file = field(default=None)
     output_base_filename: str = field(default="")
     extra_iss = field(default="")

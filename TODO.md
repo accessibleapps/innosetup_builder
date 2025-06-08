@@ -68,20 +68,22 @@ Implemented directory creation with advanced options:
 - Extended template with `[Dirs]` section
 - Full test coverage in test_dirs.py
 
-### 5. Components Support
-**Priority: Medium** | **Complexity: High**
+### 5. Components Support ✅
+**Priority: Medium** | **Complexity: High** | **Status: COMPLETED**
 
-Enable modular installation options:
+Implemented modular installation options:
 - Selectable installation components
 - Component hierarchies (parent/child relationships)
 - Installation types (full, compact, custom)
 - Component-specific file/registry/run entries
 - Mutual exclusion and dependencies
 
-**Implementation Notes:**
-- Create `Component` and `InstallationType` classes
-- Modify all entry types to support component assignment
-- Complex template logic for component handling
+**Implementation Details:**
+- Created `Component` and `ComponentType` classes
+- Added components parameter to all entry types (FileEntry, DirEntry, RegistryEntry, RunEntry, UninstallRunEntry)
+- Added Types and Components sections to template
+- Full support for boolean expressions in components
+- Complete test coverage in test_components.py
 
 ### 6. Setup Section Expansion
 **Priority: Medium** | **Complexity: Medium**

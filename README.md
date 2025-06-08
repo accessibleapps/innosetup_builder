@@ -76,6 +76,37 @@ installer = Installer(
 )
 ```
 
+#### Components and Types
+```python
+from innosetup_builder import Installer, Component, ComponentType, FileEntry
+
+installer = Installer(
+    app_name="MyApp",
+    app_version="1.0.0",
+    component_types=[
+        ComponentType(name="full", description="Full installation"),
+        ComponentType(name="custom", description="Custom", flags="iscustom")
+    ],
+    components=[
+        Component(
+            name="main",
+            description="Main Program",
+            types="full custom",
+            flags="fixed"
+        ),
+        Component(
+            name="help",
+            description="Help Files",
+            types="full"
+        )
+    ],
+    files=[
+        FileEntry(source="app.exe", components="main"),
+        FileEntry(source="help.pdf", components="help")
+    ]
+)
+```
+
 ## Features
 
 This package provides a range of functionalities, including:
@@ -89,6 +120,7 @@ This package provides a range of functionalities, including:
 - Post-installation and uninstallation run commands
 - Advanced file handling with permissions, attributes, and flags
 - Directory creation with permissions and attributes
+- Components and setup types for modular installations
 
 ## Contributing
 
