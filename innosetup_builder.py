@@ -4,6 +4,7 @@ import pathlib
 import platform
 import subprocess
 import tempfile
+from typing import Any, Dict, Generator, List, Optional, Union
 try:
     import winreg
 except ImportError:
@@ -113,8 +114,8 @@ Filename: "{{ entry.filename }}"{% if entry.parameters %}; Parameters: "{{ entry
 @define
 class FileEntry:
     """This class represents a file entry in the innosetup template."""
-    source: str = field(default=None)
-    destination: str = field(default=None)
+    source: Optional[str] = field(default=None)
+    destination: Optional[str] = field(default=None)
     dest_name: str = field(default="")
     excludes: str = field(default="")
     external_size: str = field(default="")
@@ -200,22 +201,22 @@ class Installer:
     app_name: str = field(default="")
     app_version: str = field(default="")
     app_short_description: str = field(default="")
-    desktop_icon = field(default=False)
+    desktop_icon: bool = field(default=False)
     run_at_startup: bool = field(default=False)
     multilingual: bool = field(default=True)
     main_executable: str = field(default="")
-    files = field(default=Factory(list))
-    registry_entries = field(default=Factory(list))
-    run_entries = field(default=Factory(list))
-    uninstall_run_entries = field(default=Factory(list))
-    dirs = field(default=Factory(list))
-    component_types = field(default=Factory(list))
-    components = field(default=Factory(list))
-    license_file = field(default=None)
+    files: List[FileEntry] = field(default=Factory(list))
+    registry_entries: List[RegistryEntry] = field(default=Factory(list))
+    run_entries: List[RunEntry] = field(default=Factory(list))
+    uninstall_run_entries: List[UninstallRunEntry] = field(default=Factory(list))
+    dirs: List[DirEntry] = field(default=Factory(list))
+    component_types: List[ComponentType] = field(default=Factory(list))
+    components: List[Component] = field(default=Factory(list))
+    license_file: Optional[str] = field(default=None)
     output_base_filename: str = field(default="")
-    extra_iss = field(default="")
+    extra_iss: str = field(default="")
 
-    def render(self, innosetup_installation):
+    def render(self, innosetup_installation: 'InnosetupCompiler') -> str:
         """This method renders the installer."""
         env = jinja2.Environment()
         # load the template from the string
@@ -224,7 +225,7 @@ class Installer:
         return template.render(installer=self, innosetup=innosetup_installation)
 
 
-def get_path_from_registry():
+def get_path_from_registry() -> Optional[str]:
     """This function gets the path to the innosetup installation from the registry"""
     if platform.system() != "Windows":
         return None
@@ -243,11 +244,11 @@ def get_path_from_registry():
     return path
 
 
-def all_files(path):
+def all_files(path: Union[str, pathlib.Path]) -> Generator[FileEntry, None, None]:
     """A generator which produces all files as FileEntry objects relative to a directory recursively"""
     path = pathlib.Path(path)
 
-    def _all_files(_path):
+    def _all_files(_path: pathlib.Path) -> Generator[FileEntry, None, None]:
         for entry in _path.iterdir():
             if entry.is_dir():
                 yield from _all_files(entry)
@@ -259,19 +260,19 @@ def all_files(path):
 @define
 class InnosetupCompiler:
     """Represents the local innosetup installation"""
-    base_path = field(default=Factory(get_path_from_registry))
+    base_path: Optional[str] = field(default=Factory(get_path_from_registry))
 
     @property
-    def languages_path(self):
+    def languages_path(self) -> pathlib.Path:
         """This property returns the path to the languages folder."""
         return pathlib.Path(self.base_path) / "Languages"
 
     @property
-    def compiler_path(self):
+    def compiler_path(self) -> pathlib.Path:
         """This property returns the path to the compiler executable."""
         return pathlib.Path(self.base_path) / "ISCC.exe"
 
-    def available_languages(self):
+    def available_languages(self) -> Generator[Dict[str, str], None, None]:
         if self.base_path is None or not self.languages_path.exists():
             return
         for language in self.languages_path.iterdir():
@@ -280,7 +281,7 @@ class InnosetupCompiler:
                        'messages_file': 'compiler:' + str(language.relative_to(self.base_path))
                        }
 
-    def build(self, installer, output_path=pathlib.Path       .cwd() / "installer.exe"):
+    def build(self, installer: Installer, output_path: Union[str, pathlib.Path] = pathlib.Path.cwd() / "installer.exe") -> None:
         """This method compiles the given installer"""
         with tempfile.TemporaryDirectory() as tmpdir:
             installer_path = pathlib.Path(tmpdir) / "installer.iss"
