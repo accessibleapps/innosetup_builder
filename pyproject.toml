@@ -13,3 +13,9 @@ dependencies = [
     "attrs",
     "jinja2"
 ]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov"
+]

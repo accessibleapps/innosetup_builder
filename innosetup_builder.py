@@ -148,10 +148,13 @@ class InnosetupCompiler:
         return pathlib.Path(self.base_path) / "ISCC.exe"
 
     def available_languages(self):
+        if self.base_path is None or not self.languages_path.exists():
+            return
         for language in self.languages_path.iterdir():
-            yield {'name': language.stem,
-                   'messages_file': 'compiler:' + str(language.relative_to(self.base_path))
-                   }
+            if language.is_file() and language.suffix.lower() == '.isl':
+                yield {'name': language.stem,
+                       'messages_file': 'compiler:' + str(language.relative_to(self.base_path))
+                       }
 
     def build(self, installer, output_path=pathlib.Path       .cwd() / "installer.exe"):
         """This method compiles the given installer"""
