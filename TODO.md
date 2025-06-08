@@ -1,187 +1,277 @@
-# Inno Setup Builder - Feature Roadmap
+# Inno Setup Builder - Missing Features
 
-This document outlines the planned features and improvements for the Inno Setup Builder library, prioritized by importance and complexity.
+This document provides a comprehensive list of all missing features based on analysis of the Inno Setup documentation versus current implementation.
 
 ## Current Implementation Status
 
 The library currently supports:
-- ✅ Basic Setup section configuration (app name, version, directories)
-- ✅ Files section with source/destination mapping
-- ✅ Simple Icons section for Start Menu shortcuts
-- ✅ Multi-language support
-- ✅ Desktop icon and startup options
-- ✅ Registry-based Inno Setup installation detection
-- ✅ Template-based .iss file generation
-- ✅ Registry Section Support (full implementation)
-- ✅ Run Section Support (Run and UninstallRun)
-- ✅ Advanced File Flags (all parameters and flags)
-- ✅ Dirs Section Support (directory creation with attributes)
+- ✅ **[Setup]** - Basic configuration (app name, version, compression, etc.)
+- ✅ **[Types]** - Installation types with ComponentType class
+- ✅ **[Components]** - Installation components with Component class
+- ✅ **[Files]** - File installation with FileEntry class (comprehensive)
+- ✅ **[Dirs]** - Directory creation with DirEntry class
+- ✅ **[Registry]** - Registry management with RegistryEntry class
+- ✅ **[Languages]** - Multi-language support (basic)
+- ✅ **[Icons]** - Basic icon creation (hardcoded)
+- ✅ **[Tasks]** - Basic task support (hardcoded for desktop icon/startup)
+- ✅ **[Run]** - Post-installation execution with RunEntry class
+- ✅ **[UninstallRun]** - Pre-uninstall execution with UninstallRunEntry class
 
-## High Priority Features (Completed)
+## Missing Features
 
-### 1. Registry Section Support ✅
-**Priority: High** | **Complexity: Medium** | **Status: COMPLETED**
+### **Missing Core Sections**
 
-Implemented comprehensive registry manipulation capabilities:
-- Registry key creation/modification/deletion
-- Support for all data types (string, dword, qword, binary, multisz, expandsz)
-- Uninstall cleanup flags (uninsdeletekey, uninsdeletevalue, uninsdeletekeyifempty)
-- Permissions and access control
-- 32-bit/64-bit registry view support
+#### **[INI] Section**
+- Create/modify INI file entries
+- Support for all INI value types
+- Section and key management
+- Uninstallation cleanup of INI entries
+- Encoding support for INI files
 
-### 2. Run Section Support ✅
-**Priority: High** | **Complexity: Medium** | **Status: COMPLETED**
+#### **[Messages] Section**
+- Override default installer messages
+- Custom error messages
+- Localized message overrides
+- Message parameters and formatting
+- Context-sensitive help text
 
-Implemented post-installation program execution:
-- Execute programs after installation completes
-- Support for parameters, working directories, status messages
-- Execution flags (postinstall, nowait, shellexec, runhidden, etc.)
-- UninstallRun section for uninstallation tasks
-- Conditional execution based on user choices
+#### **[CustomMessages] Section**
+- User-defined messages for templates
+- Parameterized message support
+- Multi-language custom messages
+- Message inheritance and overrides
+- Dynamic message generation
 
-### 3. Advanced File Flags ✅
-**Priority: High** | **Complexity: High** | **Status: COMPLETED**
+#### **[InstallDelete] Section**
+- Delete files/directories before installation
+- Wildcard pattern support
+- Recursive directory deletion
+- Conditional deletion based on flags
+- Version-based file cleanup
 
-Implemented expanded file handling capabilities:
-- Version checking and comparison (ignoreversion, replacesameversion)
-- File permissions and attributes
-- Compression options (nocompression, solidbreak)
-- Shared file management (sharedfile, regserver, regtypelib)
-- Font installation support
-- Digital signing flags
-- Conditional file installation
+#### **[UninstallDelete] Section**
+- Delete additional files during uninstallation
+- Clean up user-generated content
+- Log file cleanup
+- Configuration file removal
+- Temporary file cleanup
 
-## Medium Priority Features
+#### **[LangOptions] Section**
+- Language-specific font settings
+- Text direction (RTL/LTR) support
+- Language-specific UI options
+- Custom language configurations
+- Font fallback options
 
-### 4. Dirs Section Support ✅
-**Priority: Medium** | **Complexity: Low** | **Status: COMPLETED**
+#### **[Code] Section**
+- Pascal scripting support
+- Event function definitions
+- Custom installation logic
+- User input validation
+- Dynamic configuration generation
+- Custom wizard pages
+- Runtime condition checking
 
-Implemented directory creation with advanced options:
-- Directory creation with permissions
-- Attributes (hidden, system, readonly)
-- NTFS compression support
-- Uninstall behavior control
+### **Missing Advanced Features**
 
-**Implementation Details:**
-- Created `DirEntry` class with name, permissions, attribs, and flags fields
-- Added dirs list to `Installer` class
-- Extended template with `[Dirs]` section
-- Full test coverage in test_dirs.py
+#### **Enhanced [Setup] Section Parameters**
 
-### 5. Components Support ✅
-**Priority: Medium** | **Complexity: High** | **Status: COMPLETED**
+**Digital Signing Configuration:**
+- SignTool configuration
+- SignedUninstaller support
+- SignToolMinimumTimeBetween
+- SignToolRetryCount
+- SignToolRetryDelay
+- SignToolRunMinimized
 
-Implemented modular installation options:
-- Selectable installation components
-- Component hierarchies (parent/child relationships)
-- Installation types (full, compact, custom)
-- Component-specific file/registry/run entries
-- Mutual exclusion and dependencies
+**Advanced Compression Settings:**
+- LZMAAlgorithm options
+- LZMABlockSize configuration
+- LZMADictionarySize settings
+- LZMAMatchFinder options
+- LZMANumBlockThreads
+- LZMANumFastBytes
+- LZMAUseSeparateProcess
+- CompressionThreads
 
-**Implementation Details:**
-- Created `Component` and `ComponentType` classes
-- Added components parameter to all entry types (FileEntry, DirEntry, RegistryEntry, RunEntry, UninstallRunEntry)
-- Added Types and Components sections to template
-- Full support for boolean expressions in components
-- Complete test coverage in test_components.py
+**Security and Privileges:**
+- PrivilegesRequired configuration
+- PrivilegesRequiredOverridesAllowed
+- ArchitecturesAllowed
+- ArchitecturesInstallIn64BitMode
+- MinVersion requirements
+- OnlyBelowVersion restrictions
 
-### 6. Setup Section Expansion
-**Priority: Medium** | **Complexity: Medium**
+**UI Customization:**
+- WizardImageFile support
+- WizardSmallImageFile
+- WizardImageBackColor
+- WizardImageAlphaFormat
+- WizardImageStretch
+- WizardSizePercent
+- WizardResizable
+- WindowShowCaption
+- WindowStartMaximized
+- WindowResizable
+- WindowVisible
 
-Add comprehensive installer configuration:
-- Licensing (LicenseFile, InfoBeforeFile, InfoAfterFile)
-- Compression settings (Compression, SolidCompression, InternalCompressLevel)
-- Version information fields
-- Digital signing configuration
-- Wizard appearance customization
-- Administrative privileges control
+**Installation Behavior:**
+- SetupLogging configuration
+- UninstallLogging
+- UninstallLogMode
+- RestartIfNeededByRun
+- RestartApplications
+- CloseApplications
+- CloseApplicationsFilter
+- AlwaysRestart
+- SetupMutex
+- AppMutex
 
-**Implementation Notes:**
-- Extend `Installer` class with additional setup fields
-- Update template with conditional setup directives
+**Version Information:**
+- VersionInfoCompany
+- VersionInfoCopyright
+- VersionInfoDescription
+- VersionInfoOriginalFileName
+- VersionInfoProductName
+- VersionInfoProductTextVersion
+- VersionInfoProductVersion
+- VersionInfoTextVersion
+- VersionInfoVersion
 
-### 7. Icons Section Enhancement
-**Priority: Medium** | **Complexity: Low**
+**Advanced Installation Control:**
+- DisableStartupPrompt
+- DisableWelcomePage
+- DisableReadyPage
+- DisableFinishedPage
+- DisableDirPage
+- DisableProgramGroupPage
+- DisableReadyMemo
+- FlatComponentsList
+- ShowComponentSizes
+- AlwaysShowComponentsList
+- AlwaysShowDirOnReadyPage
+- AlwaysShowGroupOnReadyPage
 
-Improve shortcut creation capabilities:
+#### **Flexible [Icons] Section**
+- IconEntry class for custom icon definitions
 - Command line parameters for shortcuts
 - Working directory specification
 - Hot key assignments
 - Icon file and index selection
-- Advanced shortcut flags (runmaximized, preventpinning)
+- Shortcut flags (runmaximized, runminimized, preventpinning)
 - Internet shortcuts (URL support)
+- Conditional icon creation
+- Icon permissions and attributes
 
-**Implementation Notes:**
-- Extend existing icon functionality in template
-- Add IconEntry class with full parameter support
+#### **Flexible [Tasks] Section**
+- TaskEntry class for custom task definitions
+- Hierarchical task structure support
+- Task groups and descriptions
+- Mutually exclusive tasks
+- Task dependencies
+- Conditional task availability
+- Custom task flags
+- Task-specific UI elements
 
-## Lower Priority Features
+#### **Advanced File Features**
+Missing FileEntry parameters:
+- CopyMode specification
+- OnlyBelowVersion checking
+- MinVersion requirements
+- Check conditions
+- BeforeInstall/AfterInstall events
+- SourceDir overrides
+- Languages parameter
+- Tasks parameter
 
-### 8. Conditional Installation
-**Priority: Low** | **Complexity: Medium**
+#### **Service Installation Support**
+- Windows service installation
+- Service configuration parameters
+- Service dependencies
+- Service startup types
+- Service accounts and permissions
+- Service description and display names
+- Service failure actions
+- Service recovery options
 
-Add platform and condition-based installation:
-- Check parameter for all sections
-- Platform detection (IsWin64, processor architecture)
-- Custom condition functions
-- Version-based installation logic
+#### **Architecture and Platform Support**
+- Enhanced 32/64-bit handling
+- ARM architecture support
+- Platform-specific installations
+- Processor architecture detection
+- Compatibility checking
+- Cross-platform file selection
 
-### 9. Code Section Support  
-**Priority: Low** | **Complexity: High**
+### **Missing Utility Features**
 
-Enable Pascal scripting for advanced scenarios:
-- Custom installation logic
-- User input validation
-- Dynamic configuration
-- Event handling (InitializeSetup, NextButtonClick, etc.)
+#### **Disk Spanning Support**
+- Multi-disk installation creation
+- DiskSpanning configuration
+- SlicesPerDisk settings
+- DiskSliceSize specification
+- DiskClusterSize optimization
 
-### 10. Digital Signing Support
-**Priority: Low** | **Complexity: Medium**
+#### **Encryption Support**
+- File encryption during installation
+- Password protection
+- Encryption algorithm selection
+- Key management
 
-Add code signing capabilities:
-- SignTool configuration
-- File signing during compilation
-- Installer signing
-- Certificate management
+#### **Network Installation Features**
+- UNC path support improvements
+- Network drive handling
+- Remote installation capabilities
+- Download functionality integration
 
-## Implementation Guidelines
+#### **Validation and Checking**
+- Input validation functions
+- File integrity checking
+- Digital signature verification
+- Checksum validation
+- Version compatibility checking
 
-### Development Approach
-1. **Incremental Development**: Implement features one at a time with full testing
-2. **Backward Compatibility**: Ensure existing code continues to work
-3. **Template Extension**: Extend Jinja2 template systematically
-4. **Class Design**: Use attrs dataclasses for consistent API
-5. **Documentation**: Update README and examples for each feature
+#### **Advanced Registry Features**
+Missing registry capabilities:
+- Registry key permissions (detailed ACL)
+- Registry key backup/restore
+- Registry key linking
+- Registry virtualization control
 
-### Testing Strategy
-- Unit tests for each new class and method
-- Integration tests with actual Inno Setup compilation
-- Example scripts demonstrating new features
-- Cross-platform testing (Windows focus, graceful degradation elsewhere)
+#### **Custom Installation Types**
+- Installation type customization beyond basic types
+- Type-specific component selection
+- Dynamic type creation
+- Type inheritance and overrides
 
-### API Design Principles
-- Follow existing patterns (attrs classes, Factory defaults)
-- Use descriptive parameter names matching Inno Setup documentation
-- Provide sensible defaults for optional parameters
-- Include comprehensive docstrings with examples
+#### **Advanced Language Support**
+- Language detection methods
+- Fallback language handling
+- Mixed-language installations
+- Dynamic language switching
+- Custom language files
 
-## Future Considerations
+#### **Development and Debugging Features**
+- Debug logging capabilities
+- Installation progress callbacks
+- Error handling customization
+- Rollback functionality
+- Installation state tracking
 
-### Advanced Features for Later Versions
+#### **Integration Features**
 - MSI product code integration
-- Patch/update installation support
-- Multi-disk spanning
-- Custom wizard pages
-- Plugin system for extensions
-- GUI builder interface
+- Windows Installer interoperability
+- Package management integration
+- Update/patch installation support
+- Dependency management
 
-### Performance Optimizations
-- Template compilation caching
-- Large file handling improvements
-- Compression optimization
-- Build time reduction
+### **Missing Documentation Features**
+- Comprehensive parameter documentation
+- Best practices guide
+- Migration guides
+- Performance optimization guide
+- Troubleshooting documentation
+- Example gallery expansion
 
 ---
 
-**Last Updated:** January 2025
-**Next Review:** After completing high-priority features
+**Note:** This list represents a comprehensive analysis of Inno Setup capabilities versus current implementation. Features are listed without prioritization to provide a complete overview of potential enhancements.

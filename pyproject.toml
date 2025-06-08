@@ -5,17 +5,43 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "innosetup_builder"
 description = "Programmatically create Innosetup installers and compile them with the Innosetup compiler"
-version = "0.1.2"
+version = "0.2.0"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+keywords = ["innosetup", "installer", "windows", "packaging"]
 authors = [
     { name = "Christopher Toth", email = "q@q-continuum.net" }
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers", 
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Installation/Setup"
 ]
 dependencies = [
     "attrs",
     "jinja2"
 ]
 
+[project.urls]
+Homepage = "https://github.com/ctoth/innosetup_builder"
+Repository = "https://github.com/ctoth/innosetup_builder"
+Issues = "https://github.com/ctoth/innosetup_builder/issues"
+
 [project.optional-dependencies]
 test = [
     "pytest",
     "pytest-cov"
 ]
+
+[tool.setuptools]
+py-modules = ["innosetup_builder"]
