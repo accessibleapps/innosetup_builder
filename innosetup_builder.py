@@ -35,6 +35,13 @@ Source: "{{ file.source }}"; DestDir: "{app}{% if file.destination %}\\{{ file.d
 {% endfor %}
 {% endif %}
 
+{% if installer.dirs %}
+[Dirs]
+{% for dir in installer.dirs %}
+Name: "{{ dir.name }}"{% if dir.permissions %}; Permissions: {{ dir.permissions }}{% endif %}{% if dir.attribs %}; Attribs: {{ dir.attribs }}{% endif %}{% if dir.flags %}; Flags: {{ dir.flags }}{% endif %}
+{% endfor %}
+{% endif %}
+
 {% if installer.registry_entries %}
 [Registry]
 {% for entry in installer.registry_entries %}
@@ -139,6 +146,15 @@ class UninstallRunEntry:
 
 
 @define
+class DirEntry:
+    """This class represents a directory entry in the innosetup template."""
+    name: str = field(default="")
+    permissions: str = field(default="")
+    attribs: str = field(default="")
+    flags: str = field(default="")
+
+
+@define
 class Installer:
     """This class represents an installer."""
     author: str = field(default="")
@@ -154,6 +170,7 @@ class Installer:
     registry_entries = field(default=Factory(list))
     run_entries = field(default=Factory(list))
     uninstall_run_entries = field(default=Factory(list))
+    dirs = field(default=Factory(list))
     license_file = field(default=None)
     output_base_filename: str = field(default="")
     extra_iss = field(default="")
