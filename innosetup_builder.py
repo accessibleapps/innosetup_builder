@@ -343,38 +343,44 @@ def get_default_flags_for_file(file_path: pathlib.Path, main_executable: Optiona
     suffix = file_path.suffix.lower()
     filename = file_path.name
     
+    # Add default overwrite flags for all files
+    flags.append(FileFlags.IGNORE_VERSION)
+    flags.append(FileFlags.OVERWRITE_READONLY)
+    
     # Check if this is the main executable
     if main_executable and filename == main_executable:
-        flags.append(FileFlags.IGNORE_VERSION)
-        flags.append(FileFlags.OVERWRITE_READONLY)
+        # Main executable already has the default overwrite flags
+        pass
     
     # Executable files (not main executable)
     elif suffix in {'.exe', '.com', '.bat', '.cmd'}:
-        flags.append(FileFlags.IGNORE_VERSION)
+        # Executables already have the default overwrite flags
+        pass
     
-    # Dynamic libraries and components
-    elif suffix in {'.dll'}:
+    # Dynamic libraries and components (including .pyd files)
+    elif suffix in {'.dll', '.pyd'}:
         flags.append(FileFlags.SHARED_FILE)
     elif suffix in {'.ocx', '.bpl', '.dpl'}:
         flags.append(FileFlags.SHARED_FILE)
         flags.append(FileFlags.REG_SERVER)
     
-    # Configuration files - don't overwrite if they exist
+    # Configuration files - still overwrite by default now
     elif suffix in {'.ini', '.cfg', '.config', '.json', '.xml', '.yaml', '.yml'} or filename.lower() in {'settings.txt', 'config.txt'}:
-        flags.append(FileFlags.ONLY_IF_DOESNT_EXIST)
+        # Configuration files now overwrite by default too
+        pass
     
     # README files
     elif filename.lower() in {'readme.txt', 'readme.md', 'read me.txt'} or 'readme' in filename.lower():
         flags.append(FileFlags.IS_README)
     
-    # Font files
+    # Font files - still overwrite by default now
     elif suffix in {'.ttf', '.otf', '.fon'}:
-        flags.append(FileFlags.ONLY_IF_DOESNT_EXIST)
         flags.append(FileFlags.UNINS_NEVER_UNINSTALL)
     
     # Help files
     elif suffix in {'.chm', '.hlp'}:
-        flags.append(FileFlags.IGNORE_VERSION)
+        # Help files already have the default overwrite flags
+        pass
     
     # Type libraries
     elif suffix in {'.tlb'}:
