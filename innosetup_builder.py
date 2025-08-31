@@ -3,13 +3,18 @@
 import pathlib
 import platform
 import subprocess
+import sys
 import tempfile
-from enum import StrEnum
 from typing import Any, Dict, Generator, List, Optional, Union
 try:
     import winreg
 except ImportError:
     pass
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from backports.strenum import StrEnum
 
 
 import jinja2
