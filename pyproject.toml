@@ -45,3 +45,8 @@ test = [
 
 [tool.setuptools]
 py-modules = ["innosetup_builder"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]

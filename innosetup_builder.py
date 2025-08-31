@@ -4,6 +4,7 @@ import pathlib
 import platform
 import subprocess
 import tempfile
+from enum import StrEnum
 from typing import Any, Dict, Generator, List, Optional, Union
 try:
     import winreg
@@ -13,6 +14,80 @@ except ImportError:
 
 import jinja2
 from attr import Factory, define, field
+
+
+class FileFlags(StrEnum):
+    """Enum for Inno Setup file flags providing type safety."""
+    
+    # Architecture flags
+    FLAG_32BIT = "32bit"
+    FLAG_64BIT = "64bit"
+    
+    # Overwrite behavior flags
+    IGNORE_VERSION = "ignoreversion"
+    COMPARE_TIMESTAMP = "comparetimestamp"
+    CONFIRM_OVERWRITE = "confirmoverwrite"
+    OVERWRITE_READONLY = "overwritereadonly" 
+    REPLACE_SAME_VERSION = "replacesameversion"
+    PROMPT_IF_OLDER = "promptifolder"
+    
+    # Installation condition flags
+    ONLY_IF_DOESNT_EXIST = "onlyifdoesntexist"
+    ONLY_IF_DEST_FILE_EXISTS = "onlyifdestfileexists"
+    
+    # File handling flags
+    DELETE_AFTER_INSTALL = "deleteafterinstall"
+    DONT_COPY = "dontcopy"
+    EXTERNAL = "external"
+    RESTART_REPLACE = "restartreplace"
+    
+    # Registration flags
+    REG_SERVER = "regserver"
+    REG_TYPELIB = "regtypelib"
+    NO_REG_ERROR = "noregerror"
+    
+    # Special file flags
+    IS_README = "isreadme"
+    SHARED_FILE = "sharedfile"
+    ALLOW_UNSAFE_FILES = "allowunsafefiles"
+    
+    # Directory handling
+    RECURSE_SUBDIRS = "recursesubdirs"
+    CREATE_ALL_SUBDIRS = "createallsubdirs"
+    
+    # Compression and encryption
+    NO_COMPRESSION = "nocompression"
+    NO_ENCRYPTION = "noencryption"
+    SOLID_BREAK = "solidbreak"
+    SORT_FILES_BY_EXTENSION = "sortfilesbyextension"
+    SORT_FILES_BY_NAME = "sortfilesbyname"
+    
+    # Font installation
+    FONT_ISNT_TRUETYPE = "fontisnttruetype"
+    
+    # GAC installation
+    GAC_INSTALL = "gacinstall"
+    
+    # NTFS compression
+    SET_NTFS_COMPRESSION = "setntfscompression"
+    UNSET_NTFS_COMPRESSION = "unsetntfscompression"
+    
+    # Security and verification
+    DONT_VERIFY_CHECKSUM = "dontverifychecksum"
+    SIGN = "sign"
+    SIGN_CHECK = "signcheck"
+    SIGN_ONCE = "signonce"
+    
+    # Uninstall behavior
+    UNINS_NEVER_UNINSTALL = "uninsneveruninstall"
+    UNINS_RESTART_DELETE = "uninsrestartdelete"
+    UNINS_REMOVE_READONLY = "uninsremovereadonly"
+    UNINS_NO_SHARED_FILE_PROMPT = "uninsnosharedfileprompt"
+    
+    # Misc flags
+    TOUCH = "touch"
+    SKIP_IF_SOURCE_DOESNT_EXIST = "skipifsourcedoesntexist"
+
 
 innosetup_template = """\
 [Setup]
@@ -47,7 +122,7 @@ Name: "{{ component.name }}"; Description: "{{ component.description }}"{% if co
 {% if installer.files %}
 [Files]
 {% for file in installer.files %}
-Source: "{{ file.source }}"; DestDir: "{app}{% if file.destination %}\\{{ file.destination }}{% endif %}"{% if file.dest_name %}; DestName: "{{ file.dest_name }}"{% endif %}{% if file.excludes %}; Excludes: "{{ file.excludes }}"{% endif %}{% if file.external_size %}; ExternalSize: {{ file.external_size }}{% endif %}{% if file.attribs %}; Attribs: {{ file.attribs }}{% endif %}{% if file.permissions %}; Permissions: {{ file.permissions }}{% endif %}{% if file.font_install %}; FontInstall: "{{ file.font_install }}"{% endif %}{% if file.strong_assembly_name %}; StrongAssemblyName: "{{ file.strong_assembly_name }}"{% endif %}{% if file.flags %}; Flags: {{ file.flags }}{% endif %}{% if file.components %}; Components: {{ file.components }}{% endif %}
+Source: "{{ file.source }}"; DestDir: "{app}{% if file.destination %}\\{{ file.destination }}{% endif %}"{% if file.dest_name %}; DestName: "{{ file.dest_name }}"{% endif %}{% if file.excludes %}; Excludes: "{{ file.excludes }}"{% endif %}{% if file.external_size %}; ExternalSize: {{ file.external_size }}{% endif %}{% if file.attribs %}; Attribs: {{ file.attribs }}{% endif %}{% if file.permissions %}; Permissions: {{ file.permissions }}{% endif %}{% if file.font_install %}; FontInstall: "{{ file.font_install }}"{% endif %}{% if file.strong_assembly_name %}; StrongAssemblyName: "{{ file.strong_assembly_name }}"{% endif %}{% if file.flags_string %}; Flags: {{ file.flags_string }}{% endif %}{% if file.components %}; Components: {{ file.components }}{% endif %}
 {% endfor %}
 {% endif %}
 
@@ -123,8 +198,19 @@ class FileEntry:
     permissions: str = field(default="")
     font_install: str = field(default="")
     strong_assembly_name: str = field(default="")
-    flags: str = field(default="")
+    flags: Union[str, List[FileFlags], FileFlags] = field(default="")
     components: str = field(default="")
+    
+    @property
+    def flags_string(self) -> str:
+        """Convert flags to space-separated string for Inno Setup template."""
+        if isinstance(self.flags, str):
+            return self.flags
+        elif isinstance(self.flags, FileFlags):
+            return str(self.flags)
+        elif isinstance(self.flags, list):
+            return " ".join(str(flag) for flag in self.flags)
+        return ""
 
 
 @define
@@ -244,8 +330,67 @@ def get_path_from_registry() -> Optional[str]:
     return path
 
 
-def all_files(path: Union[str, pathlib.Path]) -> Generator[FileEntry, None, None]:
-    """A generator which produces all files as FileEntry objects relative to a directory recursively"""
+def get_default_flags_for_file(file_path: pathlib.Path, main_executable: Optional[str] = None) -> List[FileFlags]:
+    """Determine appropriate default flags for a file based on its type and purpose."""
+    flags = []
+    
+    # Get file extension
+    suffix = file_path.suffix.lower()
+    filename = file_path.name
+    
+    # Check if this is the main executable
+    if main_executable and filename == main_executable:
+        flags.append(FileFlags.IGNORE_VERSION)
+        flags.append(FileFlags.OVERWRITE_READONLY)
+    
+    # Executable files (not main executable)
+    elif suffix in {'.exe', '.com', '.bat', '.cmd'}:
+        flags.append(FileFlags.IGNORE_VERSION)
+    
+    # Dynamic libraries and components
+    elif suffix in {'.dll'}:
+        flags.append(FileFlags.SHARED_FILE)
+    elif suffix in {'.ocx', '.bpl', '.dpl'}:
+        flags.append(FileFlags.SHARED_FILE)
+        flags.append(FileFlags.REG_SERVER)
+    
+    # Configuration files - don't overwrite if they exist
+    elif suffix in {'.ini', '.cfg', '.config', '.json', '.xml', '.yaml', '.yml'} or filename.lower() in {'settings.txt', 'config.txt'}:
+        flags.append(FileFlags.ONLY_IF_DOESNT_EXIST)
+    
+    # README files
+    elif filename.lower() in {'readme.txt', 'readme.md', 'read me.txt'} or 'readme' in filename.lower():
+        flags.append(FileFlags.IS_README)
+    
+    # Font files
+    elif suffix in {'.ttf', '.otf', '.fon'}:
+        flags.append(FileFlags.ONLY_IF_DOESNT_EXIST)
+        flags.append(FileFlags.UNINS_NEVER_UNINSTALL)
+    
+    # Help files
+    elif suffix in {'.chm', '.hlp'}:
+        flags.append(FileFlags.IGNORE_VERSION)
+    
+    # Type libraries
+    elif suffix in {'.tlb'}:
+        flags.append(FileFlags.REG_TYPELIB)
+        flags.append(FileFlags.SHARED_FILE)
+    
+    # Compressed files - don't compress again
+    elif suffix in {'.zip', '.7z', '.rar', '.gz', '.jpg', '.jpeg', '.png', '.gif', '.mp3', '.mp4', '.avi'}:
+        flags.append(FileFlags.NO_COMPRESSION)
+    
+    return flags
+
+
+def all_files(path: Union[str, pathlib.Path], main_executable: Optional[str] = None, auto_flags: bool = True) -> Generator[FileEntry, None, None]:
+    """A generator which produces all files as FileEntry objects relative to a directory recursively
+    
+    Args:
+        path: Directory to scan for files
+        main_executable: Name of the main executable to give special treatment
+        auto_flags: Whether to automatically assign appropriate flags based on file type
+    """
     path = pathlib.Path(path)
 
     def _all_files(_path: pathlib.Path) -> Generator[FileEntry, None, None]:
@@ -253,7 +398,12 @@ def all_files(path: Union[str, pathlib.Path]) -> Generator[FileEntry, None, None
             if entry.is_dir():
                 yield from _all_files(entry)
             else:
-                yield FileEntry(source=str(entry.absolute()), destination=str(entry.relative_to(path).parent))
+                flags = get_default_flags_for_file(entry, main_executable) if auto_flags else []
+                yield FileEntry(
+                    source=str(entry.absolute()), 
+                    destination=str(entry.relative_to(path).parent),
+                    flags=flags
+                )
     yield from _all_files(path)
 
 
