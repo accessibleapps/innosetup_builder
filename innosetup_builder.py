@@ -97,7 +97,8 @@ class FileFlags(StrEnum):
 innosetup_template = """\
 [Setup]
 AppName={{ installer.app_name }}
-WizardStyle=modern
+{% if installer.app_id %}AppId={{ installer.app_id }}
+{% endif %}WizardStyle=modern
 DefaultDirName={autopf}\\{{ installer.app_name }}
 DefaultGroupName={{ installer.app_name }}
 AppVersion  ={{ installer.app_version }}
@@ -290,6 +291,7 @@ class Installer:
     author: str = field(default="")
     author_email: str = field(default="")
     app_name: str = field(default="")
+    app_id: str = field(default="")
     app_version: str = field(default="")
     app_short_description: str = field(default="")
     desktop_icon: bool = field(default=False)
