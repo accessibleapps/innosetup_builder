@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "innosetup_builder"
 description = "Programmatically create Innosetup installers and compile them with the Innosetup compiler"
-version = "0.2.2"
+version = "0.2.3"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8.6"
