@@ -135,7 +135,7 @@ class TestInstallerWithComponents:
             ComponentType(name="custom", description="Custom", flags="iscustom")
         ]
         
-        rendered = installer.render(InnosetupCompiler())
+        rendered = installer.render(InnosetupCompiler(base_path=None))
         
         assert "[Types]" in rendered
         assert 'Name: "full"; Description: "Full installation"' in rendered
@@ -164,7 +164,7 @@ class TestInstallerWithComponents:
             )
         ]
         
-        rendered = installer.render(InnosetupCompiler())
+        rendered = installer.render(InnosetupCompiler(base_path=None))
         
         assert "[Components]" in rendered
         assert 'Name: "main"; Description: "Main Files"; Types: full compact; Flags: fixed' in rendered
@@ -183,7 +183,7 @@ class TestInstallerWithComponents:
             FileEntry(source="help.chm", components="help")
         ]
         
-        rendered = installer.render(InnosetupCompiler())
+        rendered = installer.render(InnosetupCompiler(base_path=None))
         
         assert 'Source: "main.exe"; DestDir: "{app}"; Components: main' in rendered
         assert 'Source: "help.chm"; DestDir: "{app}"; Components: help' in rendered
@@ -245,7 +245,7 @@ class TestInstallerWithComponents:
             )
         ]
         
-        rendered = installer.render(InnosetupCompiler())
+        rendered = installer.render(InnosetupCompiler(base_path=None))
         
         # Verify all sections are present
         assert "[Types]" in rendered
@@ -273,7 +273,7 @@ class TestInstallerWithComponents:
             Component(name="db\\postgres", description="PostgreSQL", flags="exclusive")
         ]
         
-        rendered = installer.render(InnosetupCompiler())
+        rendered = installer.render(InnosetupCompiler(base_path=None))
         
         assert 'Name: "db\\sqlite"; Description: "SQLite"; Flags: exclusive' in rendered
         assert 'Name: "db\\mysql"; Description: "MySQL"; Flags: exclusive' in rendered
@@ -287,7 +287,7 @@ class TestInstallerWithComponents:
             main_executable="test.exe"
         )
         
-        rendered = installer.render(InnosetupCompiler())
+        rendered = installer.render(InnosetupCompiler(base_path=None))
         
         assert "[Types]" not in rendered
         assert "[Components]" not in rendered

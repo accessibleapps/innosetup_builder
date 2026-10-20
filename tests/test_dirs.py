@@ -47,7 +47,7 @@ def test_installer_with_dirs():
     ]
     
     # Render the installer
-    rendered = installer.render(InnosetupCompiler())
+    rendered = installer.render(InnosetupCompiler(base_path=None))
     
     # Check that Dirs section is present
     assert "[Dirs]" in rendered
@@ -64,12 +64,12 @@ def test_dirs_section_conditional():
     )
     
     # Render without dirs
-    rendered = installer.render(InnosetupCompiler())
+    rendered = installer.render(InnosetupCompiler(base_path=None))
     assert "[Dirs]" not in rendered
     
     # Add a dir and render again
     installer.dirs = [DirEntry(name="{app}\\data")]
-    rendered = installer.render(InnosetupCompiler())
+    rendered = installer.render(InnosetupCompiler(base_path=None))
     assert "[Dirs]" in rendered
 
 
@@ -89,7 +89,7 @@ def test_dir_with_all_attributes():
         dirs=[dir_entry]
     )
     
-    rendered = installer.render(InnosetupCompiler())
+    rendered = installer.render(InnosetupCompiler(base_path=None))
     expected_line = 'Name: "{commonappdata}\\TestApp\\Config"; Permissions: admins-full users-readexec; Attribs: readonly hidden system; Flags: setntfscompression uninsalwaysuninstall'
     assert expected_line in rendered
 
@@ -107,7 +107,7 @@ def test_multiple_dirs_order():
         ]
     )
     
-    rendered = installer.render(InnosetupCompiler())
+    rendered = installer.render(InnosetupCompiler(base_path=None))
     
     # Check order is preserved
     first_pos = rendered.find('Name: "{app}\\first"')

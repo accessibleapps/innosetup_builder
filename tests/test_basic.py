@@ -100,8 +100,8 @@ class TestInnosetupCompiler:
 
     def test_compiler_paths_with_base(self):
         compiler = InnosetupCompiler(base_path="/test/path")
-        assert str(compiler.languages_path) == "/test/path/Languages"
-        assert str(compiler.compiler_path) == "/test/path/ISCC.exe"
+        assert compiler.languages_path == pathlib.Path("/test/path/Languages")
+        assert compiler.compiler_path == pathlib.Path("/test/path/ISCC.exe")
 
     def test_available_languages_with_base(self):
         # Test available_languages when base_path is set but path doesn't exist
