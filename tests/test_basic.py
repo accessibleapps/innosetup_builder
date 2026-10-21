@@ -3,6 +3,10 @@
 import pytest
 import tempfile
 import pathlib
+from types import SimpleNamespace
+from unittest.mock import Mock
+
+import innosetup_builder
 from innosetup_builder import Installer, FileEntry, InnosetupCompiler, all_files
 
 
@@ -93,6 +97,32 @@ class TestAllFiles:
 
 
 class TestInnosetupCompiler:
+    def test_default_compiler_finds_standard_registry_install(self, monkeypatch):
+        standard_key = (
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Inno Setup 6_is1"
+        )
+        handle = object()
+
+        def open_key(root, subkey):
+            if subkey != standard_key:
+                raise FileNotFoundError(subkey)
+            return handle
+
+        registry = SimpleNamespace(
+            HKEY_LOCAL_MACHINE=object(),
+            OpenKey=Mock(side_effect=open_key),
+            QueryValueEx=Mock(return_value=(r"C:\Inno Setup 6", 1)),
+            CloseKey=Mock(),
+        )
+        monkeypatch.setattr(innosetup_builder.platform, "system", lambda: "Windows")
+        monkeypatch.setattr(innosetup_builder, "winreg", registry, raising=False)
+
+        compiler = InnosetupCompiler()
+
+        assert compiler.base_path == r"C:\Inno Setup 6"
+        registry.OpenKey.assert_called_once_with(registry.HKEY_LOCAL_MACHINE, standard_key)
+        registry.CloseKey.assert_called_once_with(handle)
+
     def test_compiler_creation(self):
         # Test with None base_path (non-Windows environment)
         compiler = InnosetupCompiler(base_path=None)

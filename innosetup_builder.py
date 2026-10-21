@@ -325,7 +325,7 @@ def get_path_from_registry() -> Optional[str]:
     try:
         try:
             key = winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion   \\Uninstall\\Inno Setup 6_is1")
+                winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 6_is1")
         except FileNotFoundError:
             # WOW64
             key = winreg.OpenKey(
